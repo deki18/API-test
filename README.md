@@ -40,3 +40,9 @@ npm run build
 2. 选择任务类型
 3. 填写 Base URL 和 API Key
 4. 输入测试内容，点击发送测试
+
+## 在线部署
+
+本项目已配置 GitHub Pages 自动部署，访问地址：https://deki18.github.io/API-test/
+
+每次推送到 `main` 分支后会自动重新部署。
