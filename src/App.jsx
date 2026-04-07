@@ -25,6 +25,11 @@ const App = () => {
       if (taskType === 'reranker') setModel('proxy-reranker-model');
       if (taskType === 'tts') setModel('proxy-tts-model');
       if (taskType === 'ocr') setModel('claude-3-5-sonnet-20241022');
+    } else if (provider === 'ollama') {
+      setBaseUrl('http://localhost:11434');
+      if (taskType === 'chat') setModel('llama3.2');
+      if (taskType === 'embedding') setModel('mxbai-embed-large');
+      if (taskType === 'image') setModel('llava');
     } else {
       setBaseUrl('https://api.openai.com');
       if (taskType === 'chat') setModel('gpt-3.5-turbo');
@@ -41,6 +46,13 @@ const App = () => {
 
   const getFullUrl = () => {
     let cleanBase = baseUrl.trim().replace(/\/$/, '');
+
+    if (provider === 'ollama') {
+      let endpoint = '/api/generate';
+      if (taskType === 'chat') endpoint = '/api/chat';
+      if (taskType === 'embedding') endpoint = '/api/embed';
+      return `${cleanBase}${endpoint}`;
+    }
 
     if (provider === 'anthropic' && (taskType === 'chat' || taskType === 'ocr')) {
       return cleanBase.endsWith('/v1') ? `${cleanBase}/messages` : `${cleanBase}/v1/messages`;
@@ -84,7 +96,19 @@ const App = () => {
       };
       let body = {};
 
-      if (provider === 'openai') {
+      if (provider === 'ollama') {
+        body = { model: model.trim() };
+
+        if (taskType === 'chat') {
+          body.messages = [{ role: 'user', content: prompt }];
+          body.stream = false;
+        } else if (taskType === 'embedding') {
+          body.input = prompt;
+        } else if (taskType === 'image') {
+          body.prompt = prompt;
+          body.stream = false;
+        }
+      } else if (provider === 'openai') {
         headers['Authorization'] = `Bearer ${apiKey.trim()}`;
         body = { model: model.trim() };
 
@@ -218,6 +242,14 @@ const App = () => {
               }`}
             >
               Anthropic
+            </button>
+            <button
+              onClick={() => setProvider('ollama')}
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                provider === 'ollama' ? 'bg-white shadow-sm text-orange-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Ollama
             </button>
           </div>
         </header>
