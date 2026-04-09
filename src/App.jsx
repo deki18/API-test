@@ -58,8 +58,11 @@ const App = () => {
       return cleanBase.endsWith('/v1') ? `${cleanBase}/messages` : `${cleanBase}/v1/messages`;
     }
 
-    let endpoint = '/chat/completions';
-    if (taskType === 'embedding') endpoint = '/embeddings';
+    if (taskType === 'chat') {
+      return `${cleanBase}/chat/completions`;
+    }
+
+    let endpoint = '/embeddings';
     if (taskType === 'image') endpoint = '/images/generations';
     if (taskType === 'reranker') endpoint = '/rerank';
     if (taskType === 'tts') endpoint = '/audio/speech';
